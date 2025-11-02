@@ -3,10 +3,10 @@
 
 namespace bt {
 
-Portfolio::Portfolio(double starting_cash)
-    : cash_(starting_cash), position_(0), last_price_(0.0) {}
+Portfolio::Portfolio(double starting_cash, TradeLogger* logger)
+    : cash_(starting_cash), position_(0), last_price_(0.0), logger_(logger) {}
 
-void Portfolio::buy(const std::string& symbol, double price, int quantity) {
+void Portfolio::buy(const std::string& symbol, double price, int quantity, const std::string& date) {
     double cost = price * quantity;
     if (cost > cash_) {
         std::cout << "[Portfolio] Not enough cash to buy!\n";
@@ -19,9 +19,13 @@ void Portfolio::buy(const std::string& symbol, double price, int quantity) {
 
     std::cout << "[Portfolio] Bought " << quantity << " shares of "
               << symbol << " @ " << price << "\n";
+
+    if (logger_) {
+        logger_->logTrade(date, symbol, "BUY", price, quantity);
+    }
 }
 
-void Portfolio::sell(const std::string& symbol, double price, int quantity) {
+void Portfolio::sell(const std::string& symbol, double price, int quantity, const std::string& date) {
     if (quantity > position_) {
         std::cout << "[Portfolio] Not enough shares to sell!\n";
         return;
@@ -34,6 +38,10 @@ void Portfolio::sell(const std::string& symbol, double price, int quantity) {
 
     std::cout << "[Portfolio] Sold " << quantity << " shares of "
               << symbol << " @ " << price << "\n";
+
+    if (logger_) {
+        logger_->logTrade(date, symbol, "SELL", price, quantity);
+    }
 }
 
 double Portfolio::equity() const {

@@ -1,4 +1,5 @@
 #pragma once
+#include <fstream>   // <-- add this
 #include <string>
 
 namespace bt {

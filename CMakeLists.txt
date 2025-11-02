@@ -11,6 +11,7 @@ add_executable(backtrader
     src/data_loader.cpp
     src/my_strategy.cpp
     src/backtester.cpp
+    src/trade_logger.cpp
     src/portfolio.cpp
     src/main.cpp
 )
