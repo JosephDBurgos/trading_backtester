@@ -6,11 +6,7 @@ namespace bt {
 
 class Backtester {
 public:
-    void run(PriceFeed& feed, Strategy& strategy) {
-        while (feed.hasNext()) {
-            strategy.onBar(feed.next());
-        }
-    }
+    void run(PriceFeed& feed, Strategy& strategy);
 };
 
 } // namespace bt
