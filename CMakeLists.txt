@@ -10,6 +10,8 @@ add_executable(backtrader
     src/csv_data_source.cpp
     src/data_loader.cpp
     src/my_strategy.cpp
+    src/backtester.cpp
+    src/portfolio.cpp
     src/main.cpp
 )
 
