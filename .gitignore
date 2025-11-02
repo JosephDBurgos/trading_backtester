@@ -1,0 +1,28 @@
+# CMake build output
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Executables
+*.out
+*.exe
+*.dll
+*.so
+*.dylib
+
+# IDE / Editor configs
+.vscode/
+.idea/
+*.swp
+*.swo
+*.log
+
+# Data files (optional - keep if you want sample data)
+# data/*.csv
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
