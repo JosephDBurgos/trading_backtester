@@ -1,25 +1,44 @@
 #include "schema/strategy.h"
+#include "schema/indicator.h"
 #include "schema/time_utils.h"
 #include <iostream>
 
 namespace bt {
 
 class MyStrategy : public Strategy {
+private:
+    SimpleMovingAverage shortMA_{3};   // short-term moving average
+    SimpleMovingAverage longMA_{5};    // long-term moving average
+    bool inPosition_ = false;
+
 public:
     void onBar(const PriceBar& bar, Portfolio& portfolio) override {
-        static int count = 0;
+        // Update indicators with new price bar
+        shortMA_.update(bar);
+        longMA_.update(bar);
 
-        // Convert chrono timestamp to readable string
+        // Convert timestamp to readable date string
         std::string date = toDateString(bar.timestamp);
 
-        if (count == 0) {
-            portfolio.buy("AAPL", bar.close, 10, date);
-        } else if (count == 2) {
-            portfolio.sell("AAPL", bar.close, 10, date);
-        }
+        // Compute current values
+        double shortVal = shortMA_.value();
+        double longVal  = longMA_.value();
 
-        count++;
-        std::cout << "[MyStrategy] " << bar.toString() << "\n";
+
+        // Only trade when both MAs have enough data
+        if (shortVal == 0.0 || longVal == 0.0)
+            return;
+
+        // Buy when short MA crosses above long MA
+        if (!inPosition_ && shortVal > longVal) {
+            portfolio.buy("AAPL", bar.close, 10, date);
+            inPosition_ = true;
+        }
+        // Sell when short MA crosses below long MA
+        else if (inPosition_ && shortVal < longVal) {
+            portfolio.sell("AAPL", bar.close, 10, date);
+            inPosition_ = false;
+        }
     }
 };
 

@@ -76,12 +76,7 @@ void Metrics::computeFromFile(const std::string& filename) {
             continue;
         }
         
-        std::cout << "[Metrics] Parsed trade -> "
-          << "date=" << t.date
-          << ", symbol=" << t.symbol
-          << ", action=" << t.action
-          << ", price=" << t.price
-          << ", qty=" << t.quantity << "\n";
+        
 
         trades.push_back(t);
     }

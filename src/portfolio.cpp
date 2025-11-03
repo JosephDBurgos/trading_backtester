@@ -17,9 +17,6 @@ void Portfolio::buy(const std::string& symbol, double price, int quantity, const
     position_ += quantity;
     last_price_ = price;
 
-    std::cout << "[Portfolio] Bought " << quantity << " shares of "
-              << symbol << " @ " << price << "\n";
-
     if (logger_) {
         logger_->logTrade(date, symbol, "BUY", price, quantity);
     }
@@ -36,8 +33,6 @@ void Portfolio::sell(const std::string& symbol, double price, int quantity, cons
     position_ -= quantity;
     last_price_ = price;
 
-    std::cout << "[Portfolio] Sold " << quantity << " shares of "
-              << symbol << " @ " << price << "\n";
 
     if (logger_) {
         logger_->logTrade(date, symbol, "SELL", price, quantity);
