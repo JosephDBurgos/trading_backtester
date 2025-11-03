@@ -7,35 +7,33 @@ namespace bt {
 
 class MyStrategy : public Strategy {
 private:
-    SimpleMovingAverage shortMA_{3};   // short-term moving average
-    SimpleMovingAverage longMA_{5};    // long-term moving average
+    SimpleMovingAverage shortMA_{3};
+    SimpleMovingAverage longMA_{5};
+    RelativeStrengthIndex rsi_{14};
     bool inPosition_ = false;
 
 public:
     void onBar(const PriceBar& bar, Portfolio& portfolio) override {
-        // Update indicators with new price bar
         shortMA_.update(bar);
         longMA_.update(bar);
+        rsi_.update(bar);
 
-        // Convert timestamp to readable date string
         std::string date = toDateString(bar.timestamp);
 
-        // Compute current values
         double shortVal = shortMA_.value();
         double longVal  = longMA_.value();
+        double rsiVal   = rsi_.value();
 
-
-        // Only trade when both MAs have enough data
-        if (shortVal == 0.0 || longVal == 0.0)
+        if (shortVal == 0.0 || longVal == 0.0 || rsiVal == 0.0)
             return;
 
-        // Buy when short MA crosses above long MA
-        if (!inPosition_ && shortVal > longVal) {
+        // Buy when SMA cross up + RSI confirms not overbought
+        if (!inPosition_ && shortVal > longVal && rsiVal < 70) {
             portfolio.buy("AAPL", bar.close, 10, date);
             inPosition_ = true;
         }
-        // Sell when short MA crosses below long MA
-        else if (inPosition_ && shortVal < longVal) {
+        // Sell when SMA cross down + RSI confirms not oversold
+        else if (inPosition_ && shortVal < longVal && rsiVal > 30) {
             portfolio.sell("AAPL", bar.close, 10, date);
             inPosition_ = false;
         }
