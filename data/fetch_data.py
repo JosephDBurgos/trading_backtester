@@ -4,7 +4,7 @@ import pandas as pd
 import os
 
 # === CONFIGURATION ===
-symbols = ["AAPL"]  # Add more symbols here, e.g. ["AAPL", "MSFT", "NVDA"]
+symbols = ["AAPL", "MSFT", "NVDA"]
 start_date = "2020-01-01"
 end_date = "2025-01-01"
 interval = "1d"

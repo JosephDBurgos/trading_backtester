@@ -6,8 +6,12 @@ namespace bt {
 
 class Backtester {
 public:
-    void run(PriceFeed& feed, Strategy& strategy);
-};
+    void run(PriceFeed& feed, Strategy& strategy,
+            const std::string& strategyName,
+            const std::string& symbol,
+            const std::string& timeframe);
+    
+    };
 
 } // namespace bt
 

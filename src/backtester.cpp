@@ -7,7 +7,10 @@
 
 namespace bt {
 
-void Backtester::run(PriceFeed& feed, Strategy& strategy) {
+void Backtester::run(PriceFeed& feed, Strategy& strategy,
+                    const std::string& strategyName,
+                    const std::string& symbol,
+                    const std::string& timeframe) {
     {
         // --- Trading Session Context ---
         TradeLogger logger("trades.csv");
@@ -26,7 +29,7 @@ void Backtester::run(PriceFeed& feed, Strategy& strategy) {
 
     // --- Post-Backtest Metrics ---
     Metrics metrics;
-    metrics.computeFromFile("trades.csv");
+    metrics.computeFromFile("trades.csv", strategyName, symbol, timeframe);
 }
 
 } // namespace bt

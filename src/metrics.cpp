@@ -1,10 +1,12 @@
 #include "schema/metrics.h"
+#include "schema/results_db.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include <cmath>
 #include <filesystem>
+#include <chrono>
 
 namespace bt {
 
@@ -14,33 +16,26 @@ struct Trade {
     int quantity = 0;
 };
 
-void Metrics::computeFromFile(const std::string& filename) {
+void Metrics::computeFromFile(const std::string& filename,
+                              const std::string& strategyName,
+                              const std::string& symbol,
+                              const std::string& timeframe) {
     std::ifstream file(filename, std::ios::binary);
     if (!file.is_open()) {
         std::cerr << "[Metrics] Could not open " << filename << "\n";
         return;
     }
 
-    //std::cout << "[Metrics] CWD: " << std::filesystem::current_path() << "\n";
-    //std::cout << "[Metrics] Trying to read: " 
-    //      << std::filesystem::absolute(filename) << "\n";
-    //std::cout << "[Metrics] Successfully opened " << filename << "\n";
-
     std::string line;
-    // Read and normalize header
     if (!std::getline(file, line)) {
         std::cout << "[Metrics] File is empty.\n";
         return;
     }
-    if (!line.empty() && line.back() == '\r') line.pop_back(); // normalize header
-
+    if (!line.empty() && line.back() == '\r') line.pop_back();
 
     std::vector<Trade> trades;
 
-
     while (std::getline(file, line)) {
-
-        //std::cout << "[Metrics] Reading line: '" << line << "'\n";
         if (!line.empty() && line.back() == '\r') line.pop_back();
         if (line.empty()) continue;
 
@@ -48,14 +43,12 @@ void Metrics::computeFromFile(const std::string& filename) {
         Trade t;
         std::string priceStr, qtyStr;
 
-        // Read up to commas
         std::getline(ss, t.date, ',');
         std::getline(ss, t.symbol, ',');
         std::getline(ss, t.action, ',');
         std::getline(ss, priceStr, ',');
-        std::getline(ss, qtyStr); // <-- FIXED: read rest of line (no trailing comma)
+        std::getline(ss, qtyStr);
 
-    // Trim spaces and carriage returns
         auto trim = [](std::string& s) {
             while (!s.empty() && (s.back() == '\r' || s.back() == '\n' || s.back() == ' '))
                 s.pop_back();
@@ -75,12 +68,9 @@ void Metrics::computeFromFile(const std::string& filename) {
             std::cerr << "[Metrics] Skipping malformed line: " << line << "\n";
             continue;
         }
-        
-        
 
         trades.push_back(t);
     }
-
 
     if (trades.empty()) {
         std::cout << "[Metrics] No trades found.\n";
@@ -92,7 +82,6 @@ void Metrics::computeFromFile(const std::string& filename) {
     int losses = 0;
     int tradeCount = 0;
 
-    // Simple pairing (BUY -> SELL)
     for (size_t i = 0; i + 1 < trades.size(); i++) {
         const auto& buy = trades[i];
         const auto& sell = trades[i + 1];
@@ -109,7 +98,7 @@ void Metrics::computeFromFile(const std::string& filename) {
     }
 
     double winRate = (tradeCount > 0) ? (100.0 * wins / tradeCount) : 0.0;
-    double avgPnL = (tradeCount > 0) ? (totalPnL / tradeCount) : 0.0;
+    double avgPnL  = (tradeCount > 0) ? (totalPnL / tradeCount) : 0.0;
 
     std::cout << "\n========== Backtest Metrics ==========\n";
     std::cout << "Total Trades:   " << tradeCount << "\n";
@@ -119,6 +108,32 @@ void Metrics::computeFromFile(const std::string& filename) {
     std::cout << "Average PnL:    $" << avgPnL << "\n";
     std::cout << "Total PnL:      $" << totalPnL << "\n";
     std::cout << "=====================================\n\n";
+
+    // ===== Persist Results into SQLite Database =====
+    try {
+        bt::ResultsDB db("results/results.db");
+
+        bt::RunResult result;
+        result.strategy  = strategyName; // ✅ dynamic
+        result.symbol    = symbol;       // ✅ dynamic
+        result.timeframe = timeframe;    // ✅ dynamic
+        result.start     = "2020-01-01"; // placeholder for now
+        result.end       = "2025-01-01"; // placeholder for now
+        result.trades    = tradeCount;
+        result.winRate   = winRate;
+        result.totalPnL  = totalPnL;
+        result.avgPnL    = avgPnL;
+        result.maxDD     = 0.0;
+        result.sharpe    = 0.0;
+        result.commit    = "";
+        result.runMs     = 0;
+
+        db.upsert(result);
+
+        std::cout << "[Metrics] Results saved to results/results.db\n";
+    } catch (const std::exception& e) {
+        std::cerr << "[Metrics] Failed to write results: " << e.what() << "\n";
+    }
 }
 
 } // namespace bt
