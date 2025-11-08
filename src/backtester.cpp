@@ -4,13 +4,19 @@
 #include "schema/trade_logger.h"
 #include "schema/portfolio.h"
 #include "schema/metrics.h"
+#include <chrono>
+#include <iostream>
 
 namespace bt {
 
 void Backtester::run(PriceFeed& feed, Strategy& strategy,
-                    const std::string& strategyName,
-                    const std::string& symbol,
-                    const std::string& timeframe) {
+                     const std::string& strategyName,
+                     const std::string& symbol,
+                     const std::string& timeframe) {
+    using namespace std::chrono;
+
+    auto t0 = high_resolution_clock::now();
+
     {
         // --- Trading Session Context ---
         TradeLogger logger("trades.csv");
@@ -24,12 +30,18 @@ void Backtester::run(PriceFeed& feed, Strategy& strategy,
 
         // --- Portfolio Summary ---
         portfolio.summary();
+    } // logger + portfolio flushed/closed here
 
-    } // <-- logger and portfolio automatically destroyed here (file closed, data flushed)
+    auto t1 = high_resolution_clock::now();
+    long long runMs = duration_cast<milliseconds>(t1 - t0).count();
 
-    // --- Post-Backtest Metrics ---
+    std::cout << "[Backtester] " << strategyName
+              << " on " << symbol
+              << " completed in " << runMs << " ms.\n";
+
+    // --- Post-Backtest Metrics (+ runtime) ---
     Metrics metrics;
-    metrics.computeFromFile("trades.csv", strategyName, symbol, timeframe);
+    metrics.computeFromFile("trades.csv", strategyName, symbol, timeframe, runMs);
 }
 
 } // namespace bt

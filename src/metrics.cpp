@@ -19,7 +19,8 @@ struct Trade {
 void Metrics::computeFromFile(const std::string& filename,
                               const std::string& strategyName,
                               const std::string& symbol,
-                              const std::string& timeframe) {
+                              const std::string& timeframe,
+                              long long runMs) {
     std::ifstream file(filename, std::ios::binary);
     if (!file.is_open()) {
         std::cerr << "[Metrics] Could not open " << filename << "\n";
@@ -126,7 +127,7 @@ void Metrics::computeFromFile(const std::string& filename,
         result.maxDD     = 0.0;
         result.sharpe    = 0.0;
         result.commit    = "";
-        result.runMs     = 0;
+        result.runMs     = runMs;
 
         db.upsert(result);
 

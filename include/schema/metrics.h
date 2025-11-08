@@ -8,7 +8,8 @@ public:
     void computeFromFile(const std::string& filename,
                         const std::string& strategyName,
                         const std::string& symbol,
-                        const std::string& timeframe);
+                        const std::string& timeframe,
+                        long long runMs);
 };
 
 } // namespace bt
