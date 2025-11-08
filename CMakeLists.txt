@@ -14,6 +14,7 @@ add_executable(backtrader
     src/trade_logger.cpp
     src/metrics.cpp
     src/portfolio.cpp
+    src/indicator.cpp
     src/main.cpp
 )
 
