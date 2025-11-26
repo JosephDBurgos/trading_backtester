@@ -20,7 +20,9 @@ void Metrics::computeFromFile(const std::string& filename,
                               const std::string& strategyName,
                               const std::string& symbol,
                               const std::string& timeframe,
-                              long long runMs) {
+                              long long runMs,
+                              const std::string& startDate,
+                              const std::string& endDate) {
     std::ifstream file(filename, std::ios::binary);
     if (!file.is_open()) {
         std::cerr << "[Metrics] Could not open " << filename << "\n";
@@ -118,8 +120,8 @@ void Metrics::computeFromFile(const std::string& filename,
         result.strategy  = strategyName; // ✅ dynamic
         result.symbol    = symbol;       // ✅ dynamic
         result.timeframe = timeframe;    // ✅ dynamic
-        result.start     = "2020-01-01"; // placeholder for now
-        result.end       = "2025-01-01"; // placeholder for now
+        result.start     = startDate; // placeholder for now
+        result.end       = endDate; // placeholder for now
         result.trades    = tradeCount;
         result.winRate   = winRate;
         result.totalPnL  = totalPnL;

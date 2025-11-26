@@ -40,9 +40,18 @@ void Backtester::run(PriceFeed& feed, Strategy& strategy,
               << " completed in " << runMs << " ms.\n";
 
     // --- Post-Backtest Metrics (+ runtime) ---
-    Metrics metrics;
-    metrics.computeFromFile("trades.csv", strategyName, symbol, timeframe, runMs);
-}
+    std::string startDate = feed.getStartDate();
+    std::string endDate   = feed.getEndDate();
 
+    Metrics metrics;
+    metrics.computeFromFile("trades.csv",
+                        strategyName,
+                        symbol,
+                        timeframe,
+                        runMs,
+                        startDate,
+                        endDate);
+
+    }
 } // namespace bt
 

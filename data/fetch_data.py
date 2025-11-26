@@ -2,13 +2,18 @@
 import yfinance as yf
 import pandas as pd
 import os
+from datetime import datetime, timedelta
 
 # === CONFIGURATION ===
-symbols = ["AAPL", "MSFT", "NVDA"]
-start_date = "2020-01-01"
-end_date = "2025-01-01"
+symbols = ["AAPL", "MSFT", "NVDA", "GOOG", "AMZN", "META", "TSLA"]
+end_date = datetime.today()
+start_date = end_date - timedelta(days=180)
 interval = "1d"
 # ======================
+
+start_date = start_date.strftime("%Y-%m-%d")
+end_date = end_date.strftime("%Y-%m-%d")
+
 
 for symbol in symbols:
     print(
